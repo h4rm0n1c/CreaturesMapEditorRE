@@ -7,8 +7,9 @@
 //   * scans recovered member handlers with Ghidra's decompiler/P-code;
 //   * follows ECX ("this") through COPY/CAST/ADD/PTRADD/PTRSUB/MULTIEQUAL;
 //   * records reads, writes, and addresses of this+offset;
-//   * creates flat inferred structures only for classes whose exact object size
-//     is known from CRuntimeClass;
+//   * creates full flat structures when CRuntimeClass proves an exact object
+//     size, and safe observed-prefix structures for the remaining MFC UI
+//     classes;
 //   * preserves manually edited structure fields;
 //   * annotates functions, but does NOT force guessed function signatures.
 //
@@ -207,6 +208,10 @@ public class RecoverC2EMapEditorClassLayout extends GhidraScript {
     }
 
     private void initialiseTargets() {
+        // These four sizes are proved by this target's MFC CRuntimeClass data.
+        // Other MFC UI classes do not expose a usable runtime-size record, so
+        // they receive an observed-prefix type below rather than a falsely
+        // complete class layout.
         exactClassSizes.put("CC2ERoomEditorDoc",  0x158);
         exactClassSizes.put("CC2ERoomEditorView", 0x1e8);
         exactClassSizes.put("CChildFrame",        0x0c8);
@@ -678,17 +683,26 @@ public class RecoverC2EMapEditorClassLayout extends GhidraScript {
     private void createKnownClassStructures() {
         DataTypeManager dtm = currentProgram.getDataTypeManager();
 
-        for (Map.Entry<String, Integer> e : exactClassSizes.entrySet()) {
-            String owner = e.getKey();
-            int size = e.getValue();
-            ClassStats cs = classes.get(owner);
+        // The original pass only iterated exactClassSizes, which meant that the
+        // collected evidence for the dialogs, app and other UI classes was
+        // reported but never materialised in the Data Type Manager.  Emit a
+        // deliberately bounded prefix for those classes: it is useful to the
+        // decompiler without pretending to know the object tail or inheritance.
+        for (ClassStats cs : classes.values()) {
+            String owner = cs.owner;
 
-            if (cs == null || cs.fields.isEmpty()) {
-                println("[struct] " + owner + ": no member evidence; skipped");
+            // An exact CRuntimeClass size is itself enough to materialise a
+            // safe opaque flat layout.  In particular CChildFrame has no
+            // directly observed members in this build, but its 0xc8 runtime
+            // size is proven and its handlers still benefit from a this type.
+            if (cs == null || (cs.fields.isEmpty() && cs.exactSize == null)) {
+                println("[struct] " + owner + ": no member evidence or exact size; skipped");
                 continue;
             }
 
-            String typeName = owner + "_flat_layout";
+            boolean exact = cs.exactSize != null;
+            int size = exact ? cs.exactSize.intValue() : observedPrefixSize(cs);
+            String typeName = owner + (exact ? "_flat_layout" : "_observed_prefix");
 
             DataType existing = dtm.getDataType(CLASS_CATEGORY, typeName);
             Structure structure = null;
@@ -792,9 +806,25 @@ public class RecoverC2EMapEditorClassLayout extends GhidraScript {
                 dtm.addDataType(structure, DataTypeConflictHandler.REPLACE_HANDLER);
             }
 
-            println("[struct] " + owner + " size=0x" +
+            println("[struct] " + owner + " " +
+                (exact ? "exact-size=0x" : "observed-prefix=0x") +
                 Integer.toHexString(size) + " fields=" + cs.fields.size());
         }
+    }
+
+    private int observedPrefixSize(ClassStats cs) {
+        int end = 1;
+
+        for (FieldAccess field : cs.fields.values()) {
+            int width = field.bestWidth();
+            if (width <= 0) width = 1;
+            end = Math.max(end, field.offset + width);
+        }
+
+        // Preserve the exact highest observed member, then round only the
+        // allocation boundary.  The type is explicitly a prefix, never an
+        // assertion about the full object size.
+        return (end + 3) & ~3;
     }
 
     private DataType undefinedType(int width) {
@@ -928,7 +958,11 @@ public class RecoverC2EMapEditorClassLayout extends GhidraScript {
                 out.println(repeat('-', cs.owner.length()));
 
                 if (cs.exactSize == null) {
-                    out.println("Object size: unknown (report-only; no flat struct emitted)");
+                    int prefixSize = cs.fields.isEmpty() ? 0 : observedPrefixSize(cs);
+                    out.printf("Object size: unknown; observed prefix: 0x%X (%d)%n",
+                        prefixSize, prefixSize);
+                    out.println("Data type: /C2E/RecoveredClasses/" +
+                        cs.owner + "_observed_prefix");
                 }
                 else {
                     out.printf("Object size: 0x%X (%d)%n",
@@ -969,7 +1003,8 @@ public class RecoverC2EMapEditorClassLayout extends GhidraScript {
             out.println("-----");
             out.println("* Offsets are evidence, not semantic field names.");
             out.println("* Address-only evidence does not prove field width.");
-            out.println("* Flat layouts include the MFC base-object portion; inheritance is not yet split.");
+            out.println("* Full flat layouts include the MFC base-object portion; inheritance is not yet split.");
+            out.println("* An _observed_prefix ends at the highest directly observed member; it is not a full-size claim.");
             out.println("* Existing manually named structure fields are preserved.");
             out.println("* This pass does not force function signatures or this-pointer types.");
         }

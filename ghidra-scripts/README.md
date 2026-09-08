@@ -9,7 +9,7 @@ Run them in the numbered directory order below on a fresh target database. The s
 | Order | Script | Revision represented here | Purpose |
 |---:|---|---|---|
 | 01 | `RecoverC2EMapEditorMFC.java` | v1.1 | Recover MFC runtime classes, message maps and handler names |
-| 02 | `RecoverC2EMapEditorClassLayout.java` | v1 | Recover View/tool layouts and tool vtables |
+| 02 | `RecoverC2EMapEditorClassLayout.java` | v1.2 | Recover View/tool layouts, safe UI prefixes, and exact-size opaque MFC class layouts |
 | 03 | `RefineC2EMapEditorStructures.java` | v1 | Initial semantic structure refinement |
 | 04 | `ApplyC2EMapEditorTypes.java` | v1.4 | Apply typed members and proven custom-storage `this` parameters |
 | 05 | `RefineC2EMapEditorSemanticsV2.java` | v2 | Refine selected-room/history/tool semantics |
@@ -27,6 +27,10 @@ Run them in the numbered directory order below on a fresh target database. The s
 | 17 | `RefineC2EMapEditorLiveSyncCA.java` | v1 | Recover live CA sync, Cheese simulation and correct Room CA state |
 | 18 | `RefineC2EMapEditorValidation.java` | v1 | Recover validation rules and internal/external door terminology |
 | 19 | `RefineC2EMapEditorHeightAndFloorTools.java` | v1 | Recover Check Heights, Floor/Ceiling calculator and selected-boundary representation |
+| 20 | `ApplyC2EMapEditorMfcUiThisTypes.java` | v1.1 | Apply recovered UI layout types to all MFC app, frame and dialog member functions |
+| 21 | `RecoverC2EMapEditorDialogDdx.java` | v1.1 | Recover dialog DoDataExchange overrides and type only exact-overload-proven UI members |
+| 22 | `RefineC2EMapEditorCAOSOutputAPI.java` | v1 | Complete the high-fanout CAOS output dispatch API without speculative variadic typing |
+| 23 | `ApplyC2EMapEditorCoreThisTypes.java` | v1.1 | Broadly reconcile existing core member signatures with recovered layouts, including the base edit-action API |
 
 ## Layout
 
