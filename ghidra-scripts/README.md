@@ -21,11 +21,12 @@ Run them in the numbered directory order below on a fresh target database. The s
 | 11 | `RefineC2EMapEditorEditingGeometry.java` | v1 | Recover drag masks, snapping and editing geometry |
 | 12 | `RecoverC2EMapEditorEditActions.java` | v1 | Recover Undo/Redo framework and action vtables |
 | 13 | `RefineC2EMapEditorConcreteActions.java` | v1.1 | Recover concrete action layouts and document histories |
-| 14 | `RefineC2EMapEditorRemainingActions.java` | v1 | Recover Remove Room, Add Room corners and door selection |
+| 14 | `RefineC2EMapEditorRemainingActions.java` | v1 | Recover Remove Room, Add Room corners and boundary selection |
 | 15 | `RefineC2EMapEditorCAOSWorkflows.java` | v1 | Recover World/Addon CAOS generation |
 | 16 | `RefineC2EMapEditorGameIPC.java` | v1 | Recover Creature Labs `ClientSide` IPC and Open From Game |
 | 17 | `RefineC2EMapEditorLiveSyncCA.java` | v1 | Recover live CA sync, Cheese simulation and correct Room CA state |
 | 18 | `RefineC2EMapEditorValidation.java` | v1 | Recover validation rules and internal/external door terminology |
+| 19 | `RefineC2EMapEditorHeightAndFloorTools.java` | v1 | Recover Check Heights, Floor/Ceiling calculator and selected-boundary representation |
 
 ## Layout
 
@@ -37,6 +38,7 @@ ghidra-scripts/
   02-class-layout/RecoverC2EMapEditorClassLayout.java
   ...
   18-validation/RefineC2EMapEditorValidation.java
+  19-height-floor-tools/RefineC2EMapEditorHeightAndFloorTools.java
 ```
 
 The corresponding reverse-engineering notes live in [`docs/recovery-notes/`](../docs/recovery-notes/).
