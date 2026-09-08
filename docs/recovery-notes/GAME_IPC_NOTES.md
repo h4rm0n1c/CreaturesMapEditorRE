@@ -182,13 +182,16 @@ Recovered:
 ```text
 00414790 C2ECAOSOutput_ctor
 004148A0 C2ECAOSOutput_dtor
+00414900 C2ECAOSOutput_FormatAndRun
 00414980 C2ECAOSOutput_Run
 ```
 
-`00414900` is the printf-style format/run wrapper used extensively by the map
-and room query/generation code. This pass deliberately leaves its calling
-convention/name alone because it is a vararg/hidden-return helper and the
-current decompiler signature is more fragile than the semantics.
+`C2ECAOSOutput_FormatAndRun` is the printf-style format/run wrapper used
+extensively by map/room query and generation code. It is now named and has the
+same `C2ECAOSOutput *` ECX receiver as the rest of the API. Its variadic stack
+tail remains deliberately untyped: the wrapper's role is evidenced, but a
+fixed formal signature would be less accurate than retaining Ghidra's inferred
+ordinary arguments.
 
 ## Open From Game
 

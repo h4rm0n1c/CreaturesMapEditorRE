@@ -5,3 +5,6 @@ Resources and Findings from reversing the Map Editor for Creatures 3 and Docking
 javascripts for ghidra 12.1 that advance the RE to the point of the current state of understanding in this repo are provided.
 
 documentation/loose notes on RE are also provided.
+
+Recent recovery work is summarized in
+[the structural recovery phase note](docs/recovery-notes/STRUCTURAL_RECOVERY_PHASE.md).
