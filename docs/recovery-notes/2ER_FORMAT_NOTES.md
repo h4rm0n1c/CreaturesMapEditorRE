@@ -127,5 +127,6 @@ The top-level serializer proves:
 The loader reads `nextMetaroomId` / `nextRoomId` only when
 `packed_version >= 1004`.
 
-The next reversal pass should split the metaroom/room/relation serializers
-beneath `C2EWorldModel_Read2ER` and `C2EWorldModel_Write2ER`.
+The metaroom, room, geometry, and persisted door-record serializers beneath
+`C2EWorldModel_Read2ER` and `C2EWorldModel_Write2ER` have since been
+recovered. See `WORLD_MODEL_NOTES.md` and `DERIVED_GEOMETRY_NOTES.md`.

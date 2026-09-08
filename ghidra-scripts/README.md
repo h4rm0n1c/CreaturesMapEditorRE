@@ -31,6 +31,14 @@ Run them in the numbered directory order below on a fresh target database. The s
 | 21 | `RecoverC2EMapEditorDialogDdx.java` | v1.1 | Recover dialog DoDataExchange overrides and type only exact-overload-proven UI members |
 | 22 | `RefineC2EMapEditorCAOSOutputAPI.java` | v1 | Complete the high-fanout CAOS output dispatch API without speculative variadic typing |
 | 23 | `ApplyC2EMapEditorCoreThisTypes.java` | v1.1 | Broadly reconcile existing core member signatures with recovered layouts, including the base edit-action API |
+| 24 | `RefineC2EMapEditorResidualModelState.java` | v1 | Trace and annotate direct provenance for the remaining neutral Room/MetaRoom fields |
+| 25 | `RefineC2EMapEditorGameImportSemantics.java` | v1 | Validate and recover the World/MetaRoom/Room live-game import adapter |
+| 26 | `RefineC2EMapEditorGameImportParameters.java` | v1 | Recover the proven ERID-loop room-ID import parameter without naming ambiguous response helpers |
+| 27 | `RefineC2EMapEditorGameImportResponse.java` | v1 | Recover the proven RTYP/RLOC response parameter consumed by the Room importer |
+| 28 | `RefineC2EMapEditorCAOSResponseBuffer.java` | v1 | Prove and type the live IPC response buffer only where current MapEditor dataflow supports it |
+| 29 | `RefineC2EMapEditorBridgeResponse.java` | v1 | Recover the per-room bridge formal that forwards the live-game response into the Room importer |
+| 30 | `RefineC2EMapEditorCAOSOutputResponseReturn.java` | v1 | Recover the opaque response-pointer return of the CAOS output wrapper before concrete buffer typing |
+| 31 | `RefineC2EMapEditorGameImportCStringResponse.java` | v1 | Propagate the exact recovered `FormatAndRun` `CString *` response through the live-game Room-import path |
 
 ## Layout
 

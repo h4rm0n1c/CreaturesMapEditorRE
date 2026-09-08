@@ -7,8 +7,8 @@ This pass does **not** paste the Docking Station engine classes into the editor.
 The order of trust is:
 
 1. exact MapEditor 1.08 machine code and current Ghidra database;
-2. `webc2e/emscripten-c2e` (Docking Station / later C2e-era source);
-3. `videogamepreservation/creatures3` (earlier C3 source);
+2. the local original Docking Station source tree;
+3. the local original Creatures 3 source tree;
 4. the supplied `.2er` files and public CAOS documentation.
 
 The source trees are used as a semantic dictionary only when the editor binary
@@ -26,14 +26,21 @@ It stores the information needed to edit and generate the world:
 
 ```text
 C2EEditorRoom  [0x44]
-+00..+0B  unresolved compact-editor state
-+0C        C2ERoomGeometry [0x18]
-+24        derivedGeometryCache (float; -1.0 means invalid)
++00        float caValue
++04        float caInput
++08        float caTempValue
++0C        C2ERoomGeometry [0x1C]
 +28        propertyValues vector [0x10]
-+38        unresolved
++38        float caTotalDoorage
 +3C        track (VC6 CString)
-+40        roomId
++40        state40 (DWORD; unresolved)
 ```
+
+Room IDs are keys in `C2EEditorMetaRoom.roomsById`, not a member of the
+compact Room object.  The live-import path does copy its explicit room-ID
+argument to `state40`, but no recovered Room method consumes that member;
+the deliberately neutral name remains appropriate.  See
+[`LIVE_SYNC_CA_NOTES.md`](LIVE_SYNC_CA_NOTES.md) for the evidence.
 
 ### Room geometry
 
@@ -132,14 +139,14 @@ The DS engine source's `MetaRoom` contains the same semantic concepts
 (background collection, current background and track), but also runtime fields
 that the compact editor representation does not copy.
 
-## Door relations
+## Persisted door records and live boundary segments
 
 After all metarooms, the current `.2er` samples contain a relation section.
 
-The world writer proves each in-memory payload is exactly:
+The earlier WorldModel pass identified the persisted subset:
 
 ```text
-C2EEditorDoorRelation [0x0C]
+C2EEditorDoorRelation [0x0C] (deprecated serialized-subset type)
 +00 int roomId1
 +04 int roomId2
 +08 int permeability
@@ -154,14 +161,20 @@ On disk the writer emits:
 ```
 
 The middle `1` is a legacy/file-format marker. It is emitted literally and is
-not a field in the 12-byte relation object.
+not a field in the persisted subset.
+
+The live collection at WorldModel `+0x24` instead contains
+`C2EEditorBoundarySegment[0x24]`: the three persisted fields plus edge code,
+length, and start/end points. Door geometry is rebuilt from rooms; only the
+room pair and permeability are read/written. See `DERIVED_GEOMETRY_NOTES.md`
+for the corrected full layout and cache behaviour.
 
 In `undocked_station.2er` there are 172 such records; observed permeability
 values include `100` and `50`.
 
 The editor's generated CAOS uses the `DOOR` concept, and the DS engine source
-exposes `SetDoorPermiability` / `GetDoorPermiability`, so the compact object is
-named `C2EEditorDoorRelation` rather than importing the larger runtime `Door`
+exposes `SetDoorPermiability` / `GetDoorPermiability`. That supports the
+persisted permeability semantics, without importing the larger runtime `Door`
 or `Link` structures.
 
 ## High-confidence functions

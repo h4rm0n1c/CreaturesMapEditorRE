@@ -244,7 +244,25 @@ outv rtyp <roomId> outs " " outs rloc <roomId>
 ```
 
 The response is parsed into Room Type plus the six canonical geometry
-coordinates already recovered in `C2ERoomGeometry`.
+coordinates already recovered in `C2ERoomGeometry`.  The room ID is supplied
+as an argument by the metaroom's `ERID` loop; it is not an established
+`C2EEditorRoom` member (see `LIVE_SYNC_CA_NOTES.md`).
+
+The current recovered Room-import contract is:
+
+```text
+C2EEditorRoom_ReadFromGame(this, gameRoomId, caosResponse)
+```
+
+`gameRoomId` is proven by its direct assignment to the deliberately neutral
+`Room.state40`.  `caosResponse` is a `CString *`: the current bridge
+decompilation assigns the `CString *` return of
+`C2ECAOSOutput_FormatAndRun`, then forwards its `+0xC` response formal
+unchanged to `C2EEditorRoom_ReadFromGame`.
+
+The representation boundary matters. The released `ClientSide` source returns
+raw result bytes; MapEditor materialises those bytes as `CString` in its CAOS
+output wrapper before the Room importer parses the RTYP/RLOC response.
 
 ### CA rate queries
 

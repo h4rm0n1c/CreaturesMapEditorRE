@@ -225,7 +225,7 @@ public class RefineC2EMapEditorGameIPC extends GhidraScript {
             0x41a800L,
             "C2EEditorRoom_ReadFromGame",
             "room",
-            "Loads one compact room from the running engine. Queries RTYP and RLOC for roomId, parses room type plus the six canonical geometry coordinates, stores roomId, and invalidates perimeterLength.",
+            "Loads one compact room from the running engine. Queries RTYP and RLOC for roomId, parses room type plus the six canonical geometry coordinates, writes the import argument to unresolved state40, and invalidates perimeterLength.",
             "void")
     };
 
