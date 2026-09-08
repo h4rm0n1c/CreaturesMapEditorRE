@@ -1,0 +1,48 @@
+name: Temporary Ghidra pass repair
+
+on:
+  push:
+    branches:
+      - repair/restore-ghidra-passes-01-18
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore exact recovered pass sources
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f .repair/complete ]]; then
+            echo "repair already completed"
+            exit 0
+          fi
+
+          shopt -s nullglob
+          parts=(.repair/payload.b64.part-*)
+          if [[ ${#parts[@]} -ne 15 ]]; then
+            echo "waiting for all 15 payload parts; have ${#parts[@]}"
+            exit 0
+          fi
+
+          cat .repair/payload.b64.part-* | base64 -d > /tmp/ghidra-passes-01-18.tar.gz
+          echo "5cee99676534a8a74feba800c4bb5522dc5fd2418dc9f8e4b40cd02f4484d242  /tmp/ghidra-passes-01-18.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/ghidra-passes-01-18.tar.gz
+
+          count=$(find ghidra-scripts -mindepth 2 -maxdepth 2 -type f -name '*.java' ! -path '*/19-*/*' | wc -l)
+          [[ "$count" -eq 18 ]]
+
+          touch .repair/complete
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ghidra-scripts .repair/complete
+          git commit -m 'repair: stage recovered Ghidra passes 01-18'
+          git push
